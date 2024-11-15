@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flag Warriors</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/apiclient.js"></script>
+    <script src="/js/app.js"></script>
+    
+</head>
+<body>
+    <div class="game-container">
+        <img src="images/title1.gif" alt="title" class="title">
+        <img src="images/logo.png" alt="logo" class="logo">
+        <form class="name" action="#" method="GET" onsubmit="return false;">
+            <div class="button-container">
+                <input type="text" id="nombre" name="nombre" placeholder="Escribe tu nombre" required>
+                <button type="button" class="button start-button" onclick="app.createPlayer()">Iniciar juego</button>
+            </div>
+        </form>        
+    </div>
+</body>
+</html>

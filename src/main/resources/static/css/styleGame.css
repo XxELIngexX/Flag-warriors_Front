@@ -1,0 +1,44 @@
+body {
+    margin: 0; /* Eliminar márgenes del body */
+    height: 100vh; /* Asegura que el body ocupe toda la altura de la ventana */
+    background-image: url("/images/farfaraway.png");
+    background-size: cover; /* Ajusta la imagen para cubrir toda la página */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    background-position: center; /* Centra la imagen */
+    
+}
+.game-message {
+    position: absolute;
+    top: 20px;
+    left: 50%; /* Posiciona el mensaje al 50% del ancho de la pantalla */
+    transform: translateX(-50%); /* Centra el mensaje horizontalmente */
+    background-color: rgba(0, 0, 0, 0.8); /* Añadí algo de opacidad para mayor legibilidad */
+    color: #fff; /* Color de texto blanco para visibilidad */
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 12px;
+    display: none;
+    z-index: 1000;
+    transition: opacity 0.5s ease;
+}
+
+.puntajes {
+    display: flex; /* Usar flexbox en el contenedor de puntajes */
+    justify-content: space-between; /* Distribuir el espacio entre los elementos hijos */
+    align-items: center; /* Alinear los elementos verticalmente al centro */
+    padding: 0px 90px; /* Espacio lateral opcional para el contenedor */
+}
+.text{
+    color: rgb(253, 253, 253);
+    font-size: 20px; /* Tamaño de fuente opcional */
+
+
+
+}
+p {
+    margin: 0 20px ; /* Añadir margen horizontal entre los elementos */
+    font-size: 40px; /* Tamaño de fuente opcional */
+    color: rgb(0, 0, 0); /* Color de texto para mejor visibilidad */
+    height: 50px;
+
+}

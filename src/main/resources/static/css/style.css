@@ -1,0 +1,60 @@
+
+        body{
+            
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-image: url("/images/farfaraway.png");
+            background-size: cover; /* Ajusta la imagen para cubrir toda la página */
+            background-repeat: no-repeat; /* Evita que la imagen se repita */
+            background-position: center; /* Centra la imagen */
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: white;
+            padding: 1rem;
+        }
+        .title{
+            width: 20%;
+            height: 20%;
+        }
+        .logo{
+            width: 10%;
+            height: 10%;
+        }
+        
+        .button-container {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        
+        .button {
+            margin: 0.5rem 0;
+            padding: 1rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .start-button {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .start-button:hover {
+            background-color: #1d924e;
+        }
+       
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 5rem;
+            }
+            .button-container {
+                max-width: 400px;
+            }
+        }

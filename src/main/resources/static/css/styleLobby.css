@@ -1,0 +1,95 @@
+body{
+            
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-image: url("/images/farfaraway.png");
+    background-size: cover; /* Ajusta la imagen para cubrir toda la página */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    background-position: center; /* Centra la imagen */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.game-container {
+    padding: 1rem;
+    width: 1000px;
+    height: 600px;
+    background-color: rgba(87, 142, 131, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+  
+
+#countdown-display {
+    font-size: 24px;
+    color: white;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.tablas {
+    display: flex;
+    justify-content: space-between; /* Coloca los equipos al lado */
+    gap: 20px;
+    font-size: 50px;
+}
+
+.teamA, .teamB {
+    border: 1px solid #41B3A2;
+    padding: 25px;
+    font-size: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra el contenido de cada equipo */
+    justify-content: center; /* Asegura que el contenido esté centrado */
+    width: 45%; /* Ajustado para que ocupen menos de la mitad del contenedor */
+}
+
+.banderaA, .banderaB {
+    width: 100%; /* Asegura que la bandera ocupe todo el ancho disponible */
+    display: flex;
+    justify-content: center; /* Centra la bandera */
+    align-items: center; /* Centra la bandera verticalmente */
+    margin-bottom: 15px; /* Espacio entre la bandera y la tabla */
+}
+
+.imagenA, .imagenB {
+    width: 50%; /* Ajusta el tamaño de las imágenes de las banderas */
+    height: auto; /* Mantiene la proporción de la imagen */
+}
+
+.contenidoA, .contenidoB {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra la tabla debajo de la bandera */
+    justify-content: center;
+}
+
+table {
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+td {
+    padding: 5px;
+    text-align: center;
+    font-size: 18px;
+}
+.personajeA {
+    width: 128px;   /* Ancho del cuadro del sprite */
+    height: 128px;  /* Alto del cuadro del sprite */
+    background-image: url('/images/playerA.png'); /* Ruta al sprite sheet */
+    background-position: 0 0; /* Muestra el primer cuadro (frame 0) */
+    background-size: auto; /* Asegura que la imagen no se distorsione */
+}
+
+.personajeB {
+    width: 128px;   /* Ancho del cuadro del sprite */
+    height: 128px;  /* Alto del cuadro del sprite */
+    background-image: url('/images/playerB.png'); /* Ruta al sprite sheet */
+    background-position: 0 0; /* Muestra el primer cuadro (frame 0) */
+    background-size: auto; /* Asegura que la imagen no se distorsione */
+}

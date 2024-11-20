@@ -1,5 +1,6 @@
 var apiclient = (function () {
-    var apiUrl = "http://localhost:8080/api";
+    var apiUrl = "http://flagwarriorsbackend-fnhxgjb2beeqb6ct.northeurope-01.azurewebsites.net/api";
+    //var apiUrl = "http://localhost:8080/api";
 
     return {
 

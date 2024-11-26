@@ -13,7 +13,8 @@ var lobby = (function () {
       
         async connectToWebSocket() {
             await this.getPlayer();
-            lobbyWs = new WebSocket(`ws://localhost:8081?sessionId=${currentPlayer.id}`)
+            lobbyWs = new WebSocket(`wss://flagwarriorswebsocket-g4deaxdrcybycffs.northeurope-01.azurewebsites.net?sessionId=${currentPlayer.id}`)
+            //lobbyWs = new WebSocket(`ws://localhost:8081=${currentPlayer.id}`)
 
             return new Promise((resolve, reject) => {
                 lobbyWs.onopen = async () => {

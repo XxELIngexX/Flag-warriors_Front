@@ -7,6 +7,7 @@ class game extends Phaser.Scene {
         this.playerId = null;
         this.bandera1 = null;
         this.bandera2 = null;
+        this.poder = null;
         this.playersList = null
         this.oponentes =[];
         this.sceneWs=null;
@@ -24,6 +25,8 @@ class game extends Phaser.Scene {
         this.load.tilemapTiledJSON("mapa", "../map/mapa.json");
         this.load.image("banderaAzul", "../images/banderaAzul.png");
         this.load.image("banderaNaranja", "../images/banderaNaranja.png");
+        this.load.image("guepardex","../images/guepardex.png");
+
 
     }
      initializeGame() {
@@ -92,9 +95,6 @@ class game extends Phaser.Scene {
                     }
                 };
 
-
-
-        
     }
     actualizarPuntuaciones(flag){
         if(this.currentPlayer.flag == true){
@@ -155,11 +155,6 @@ class game extends Phaser.Scene {
         fondo.setCollisionByProperty({ colision: true });
         this.col = fondo
 
-        
-
-
-        
-
 
         // Banderas
         this.bandera1 = this.physics.add.sprite(1280, 950, 'banderaAzul').setScale(0.3).setSize(100, 100);
@@ -168,12 +163,13 @@ class game extends Phaser.Scene {
         this.baseA = this.physics.add.sprite(200, 180).setSize(80, 20);
         this.baseB = this.physics.add.sprite(1280, 900).setSize(80, 20);
 
+        this.poder = this.physics.add.sprite(1000,1000,'guepardex').setScale(0.3).setSize(500, 500);
+
+
+
         // Configurar colisiones con el avatar del jugador
         // this.physics.add.collider(this.avatar, this.baseA);
-        
-
-
-        
+                
     }
 
     
@@ -326,11 +322,6 @@ class game extends Phaser.Scene {
             this.contador=0
             this.sendMovementData()
         }
-
-
-
-
-
         
     }
 
@@ -355,23 +346,17 @@ class game extends Phaser.Scene {
             };
             this.sceneWs.send(JSON.stringify(flagCaptureMessage));
             app.captureFlag(this.playerId, function(response) {
-                            if (response) {
-                                console.log("Respuesta del servidor:", response);
-                            } else {
-                                console.error("No se recibió respuesta del servidor.");
-                            }
-                        });
-                            
-                        
+                if (response) {
+                    console.log("Respuesta del servidor:", response);
+                } else {
+                    console.error("No se recibió respuesta del servidor.");
+                }
+            });
 
     }
     renderPlayers() {
         // Colisiones
 
-        
-
-        
-         
         this.playersList.forEach(player => {
 
             if(player.id==this.currentPlayer.id){
@@ -391,9 +376,11 @@ class game extends Phaser.Scene {
                 if (this.currentPlayer.path == "../images/playerA.png") {
                     this.physics.add.overlap(this.avatar, this.bandera1, (player, flag) => this.collectFlag(player, flag), null, this);
                     this.physics.add.overlap(this.avatar, this.baseA,(flag) => this.actualizarPuntuaciones(flag), null, this);
+                    this.physics.add.overlap(this.avatar, this.poder, (player,poder) => this.collectPower(player,poder),null,this);
                 } else {
                     this.physics.add.overlap(this.avatar, this.bandera2,(player, flag) => this.collectFlag(player, flag), null, this);
                     this.physics.add.overlap(this.avatar, this.baseB,(flag)=> this.actualizarPuntuaciones(flag), null, this);
+                    this.physics.add.overlap(this.avatar, this.poder, (player,poder) => this.collectPower(player,poder),null,this);
                 }
 
             }else{
@@ -410,6 +397,26 @@ class game extends Phaser.Scene {
             }
             
         });
+    }
+
+    collectPower(player, poder){
+        this.currentPlayer.poder = true;
+        poder.disableBody(true, true);
+
+            const powerCaptureMessage = {
+                type: 'powerCaptured',
+                playerId: this.currentPlayer.id,
+                team: this.currentPlayer.team
+            };
+            this.sceneWs.send(JSON.stringify(powerCaptureMessage));
+            app.capturePower(this.playerId, function(response) {
+                if (response) {
+                    console.log("Respuesta del servidor:", response);
+                } else {
+                    console.error("No se recibió respuesta del servidor.");
+                }
+        });
+                            
     }
     
     renderPlayer(player) {

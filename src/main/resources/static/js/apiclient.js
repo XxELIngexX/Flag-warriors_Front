@@ -87,6 +87,19 @@ var apiclient = (function () {
                     console.error("Error al capturar la bandera:", error);
                 }
             });
+        },
+
+        capturePower: function (playerId, callback) {
+            $.ajax({
+                url: `${apiUrl}/players/${playerId}/capture-power`, 
+                method: "POST",
+                success: function (response) {
+                    callback(response);
+                },
+                error: function (error) {
+                    console.error("Error al capturar la bandera:", error);
+                }
+            });
         }
     };
     

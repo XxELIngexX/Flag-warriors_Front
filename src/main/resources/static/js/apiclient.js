@@ -1,6 +1,6 @@
 var apiclient = (function () {
-    //var apiUrl = "http://flagwarriorsbackend-fnhxgjb2beeqb6ct.northeurope-01.azurewebsites.net/api";
-    var apiUrl = "http://localhost:8080/api";
+    var apiUrl = "http://flagwarriorsbackend-fnhxgjb2beeqb6ct.northeurope-01.azurewebsites.net/api";
+    //var apiUrl = "http://localhost:8080/api";
 
     return {
 
@@ -20,10 +20,19 @@ var apiclient = (function () {
         },
 
         getAllPlayers: function (callback) {
-            $.get(`${apiUrl}/players`, function (data) {
-                callback(data);
-            }).fail(function (error) {
-                console.error("Error al obtener jugadores:", error);
+            $.ajax({
+                url: `${apiUrl}/players`, // URL de la API
+                method: "GET", // Método HTTP
+                headers:{
+                    "Access-Control-Allow-Origin":"*/*",
+                    "Origin": "http://localhost:3000"
+                },
+                success: function (data) { // Callback en caso de éxito
+                    callback(data);
+                },
+                error: function (error) { // Manejo de errores
+                    console.error("Error al obtener jugadores:", error);
+                }
             });
         },
     
@@ -39,6 +48,10 @@ var apiclient = (function () {
             $.ajax({
                 url: `${apiUrl}/teams`,
                 method: "POST",
+                headers:{
+                    "Access-Control-Allow-Origin":"*/*",
+                    "Origin": "http://localhost:3000"
+                },
                 data: JSON.stringify(teamData), // Envía el objeto como JSON
                 contentType: "application/json",
                 
@@ -48,32 +61,60 @@ var apiclient = (function () {
             });
         },
         getTeamByName: function (name, callback) {
-            $.get(`${apiUrl}/teams/name/${name}`, function (data) {
-                callback(data);
-            }).fail(function (error) {
-                if (error.status === 404) {
-                    callback(null); // Llama al callback con null si el equipo no existe
-                } else {
+            $.ajax({
+                url: `${apiUrl}/teams/name/${name}`,
+                method: "GET",
+                headers:{
+                    "Access-Control-Allow-Origin":"*/*",
+                    "Origin": "http://localhost:3000"
+                },
+                success:function(data){
+                    callback(data);
+                }, error: function (error) {
+                    if (error.status === 404) {
+                        callback(null); // Llama al callback con null si el equipo no existe
+                    } else {
+                        console.error("Error al obtener equipos:", error);
+                    }
+                }
+              });
+        },
+
+        getTeamById: function(id, callback) {
+            $.ajax({
+                url: `${apiUrl}/teams/${id}`, // URL del endpoint
+                method: "GET", // Método HTTP
+                headers: {
+                    "Access-Control-Allow-Origin": "*/*",
+                    "Origin": "http://localhost:3000"
+                },
+                success: function (data) { // Callback en caso de éxito
+                    if (callback) {
+                        callback(data);
+                    }
+                },
+                error: function (error) { // Manejo de errores
                     console.error("Error al obtener equipos:", error);
                 }
             });
         },
 
-        getTeamById: function(id, callback) {
-            $.get(`${apiUrl}/teams/${id}`, function(data) {
-                if (callback) {
-                    callback(data);
-                }
-            }).fail(function(error) {
-                console.error("Error al obtener equipos:", error);
-            });
-        },
-
         getPlayerById: function (id, callback) {
-            $.get(`${apiUrl}/players/${id}`, function (data) {
-                callback(data);
-            }).fail(function (error) {
-                console.error("Error al obtener equipos:", error);
+            $.ajax({
+                url: `${apiUrl}/players/${id}`, // URL del endpoint
+                method: "GET", // Método HTTP
+                headers: {
+                    "Access-Control-Allow-Origin": "*/*",
+                    "Origin": "http://localhost:3000"
+                },
+                success: function (data) { // Callback en caso de éxito
+                    if (callback) {
+                        callback(data);
+                    }
+                },
+                error: function (error) { // Manejo de errores
+                    console.error("Error al obtener jugadores:", error);
+                }
             });
         },
 
@@ -81,6 +122,10 @@ var apiclient = (function () {
             $.ajax({
                 url: `${apiUrl}/players/${playerId}/capture-flag`, 
                 method: "POST",
+                headers:{
+                    "Access-Control-Allow-Origin":"*/*",
+                    "Origin": "http://localhost:3000"
+                },
                 success: function (response) {
                     callback(response);
                 },
@@ -94,6 +139,10 @@ var apiclient = (function () {
             $.ajax({
                 url: `${apiUrl}/players/${playerId}/capture-power`, 
                 method: "POST",
+                headers:{
+                    "Access-Control-Allow-Origin":"*/*",
+                    "Origin": "http://localhost:3000"
+                },
                 success: function (response) {
                     callback(response);
                 },

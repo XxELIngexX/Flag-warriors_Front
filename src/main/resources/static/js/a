@@ -1,0 +1,16 @@
+curl ^"https://flagwarriorsbackend-fnhxgjb2beeqb6ct.northeurope-01.azurewebsites.net/api/teams^" ^
+  -H ^"accept: */*^" ^
+  -H ^"accept-language: es-ES,es^" ^
+  -H ^"content-type: text/plain;charset=UTF-8^" ^
+  -H ^"origin: http://localhost:3000^" ^
+  -H ^"priority: u=1, i^" ^
+  -H ^"referer: http://localhost:3000/^" ^
+  -H ^"sec-ch-ua: ^\^"Brave^\^";v=^\^"131^\^", ^\^"Chromium^\^";v=^\^"131^\^", ^\^"Not_A Brand^\^";v=^\^"24^\^"^" ^
+  -H ^"sec-ch-ua-mobile: ?0^" ^
+  -H ^"sec-ch-ua-platform: ^\^"Windows^\^"^" ^
+  -H ^"sec-fetch-dest: empty^" ^
+  -H ^"sec-fetch-mode: no-cors^" ^
+  -H ^"sec-fetch-site: cross-site^" ^
+  -H ^"sec-gpc: 1^" ^
+  -H ^"user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36^" ^
+  --data-raw ^"^{^\^"name^\^":^\^"EquipoA^\^",^\^"imagenPath^\^":^\^"../images/playerA.png^\^"^}^"

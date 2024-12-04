@@ -14,7 +14,7 @@ var lobby = (function () {
         async connectToWebSocket() {
             await this.getPlayer();
             lobbyWs = new WebSocket(`wss://flagwarriorswebsocket-g4deaxdrcybycffs.northeurope-01.azurewebsites.net?sessionId=${currentPlayer.id}`)
-            //lobbyWs = new WebSocket(`wss://localhost:8081?sessionId=${currentPlayer.id}`);
+            //lobbyWs = new WebSocket(`ws://localhost:8081?sessionId=${currentPlayer.id}`);
 
             return new Promise((resolve, reject) => {
                 lobbyWs.onopen = async () => {
@@ -112,10 +112,11 @@ var lobby = (function () {
 
         // Renderizar la lista de jugadores por equipo en el lobby
         renderPlayers() {
-            const playersList = $('#players-list');
             
+            const playersList = $('#players-list');
+            console.log(playersList);
             playersList.empty();
-
+            console.log(playersList);
             // Filtrar y renderizar jugadores por equipos
             const teamA = players.filter(player => player.team === 'A');
             const teamB = players.filter(player => player.team === 'B');

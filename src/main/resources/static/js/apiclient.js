@@ -85,24 +85,24 @@ var apiclient = (function () {
             });
         },
 
-        getTeamById: function(id, callback) {
-            $.ajax({
-                url: `${apiUrl}/teams/${id}`, // URL del endpoint
-                method: "GET", // Método HTTP
-                headers: {
-                    "Access-Control-Allow-Origin": "*/*",
-                    "Origin": "http://localhost:3000"
-                },
-                success: function (data) { // Callback en caso de éxito
-                    if (callback) {
-                        callback(data);
-                    }
-                },
-                error: function (error) { // Manejo de errores
-                    console.error("Error al obtener equipos:", error);
-                }
-            });
-        },
+        // getTeamById: function(id, callback) {
+        //     $.ajax({
+        //         url: `${apiUrl}/teams/${id}`, // URL del endpoint
+        //         method: "GET", // Método HTTP
+        //         headers: {
+        //             "Access-Control-Allow-Origin": "*/*",
+        //             "Origin": "http://localhost:3000"
+        //         },
+        //         success: function (data) { // Callback en caso de éxito
+        //             if (callback) {
+        //                 callback(data);
+        //             }
+        //         },
+        //         error: function (error) { // Manejo de errores
+        //             console.error("Error al obtener equipos:", error);
+        //         }
+        //     });
+        // },
 
         getPlayerById: function (id, callback) {
             $.ajax({
@@ -181,11 +181,7 @@ $(document).ready(function () {
 
         });
         
-        // apiclient.getTeamByName("EquipoB", function(teamB) {
-        //     if (!teamB) { 
-        //         apiclient.createTeams("EquipoB", "../images/playerB.png");
-        //     }
-        // });
+
         })
         .catch(error => {
             console.error('Error en la petición:', error);

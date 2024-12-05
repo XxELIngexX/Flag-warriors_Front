@@ -34,6 +34,11 @@ var app = (function () {
             apiclient.capturePower(id,callback);
         },
 
+
+        capturePower: function(id,callback){
+            apiclient.capturePower(id,callback);
+        },
+
         getPlayerId: function () {
             return this.playerId;
         }

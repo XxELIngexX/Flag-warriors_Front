@@ -1,6 +1,7 @@
 class game extends Phaser.Scene {
     constructor() {
         super("gameMap");
+        this.apiUrl = "https://flagwarriorsbackend-fnhxgjb2beeqb6ct.northeurope-01.azurewebsites.net/api"
         this.cursors = null;
         this.playerId = null;
         this.bandera1 = null;
@@ -16,40 +17,81 @@ class game extends Phaser.Scene {
         this.connectToWebSocket();
     }
     
-    preload() {
+
+    async preload() {
+        // Cargas básicas
         this.load.image("textura", "../map/Textures-16.png");
         this.load.tilemapTiledJSON("mapa", "../map/mapa.json");
         this.load.image("banderaAzul", "../images/banderaAzul.png");
         this.load.image("banderaNaranja", "../images/banderaNaranja.png");
         this.load.image("guepardex", "../images/guepardex.png");
-    }
-
-    initializeGame() {
-        this.loadPlayersTextures();
+       // Esperar que se carguen los recursos básicos
+        await new Promise(resolve => this.load.once('complete', resolve));
         this.load.start();
-        this.load.on('complete', () => {
-            this.renderPlayers();
-        });
+    
+        // Inicializar valores
+        await this.initianValues();
+    
+        // Esperar que los jugadores se carguen
+        await this.getPlayersList();
+        
+        // Cargar las texturas de los jugadores
+        await this.loadPlayersTextures();
         this.load.start();
     }
-
-    loadPlayersTextures() {
-        this.playersList.forEach(player => {
-            if (player.id == this.currentPlayer.id) {
-                this.load.spritesheet("avatar", player.path, { frameWidth: 128, frameHeight: 128 });
-            } else {
-                this.load.spritesheet(`opponentPlayer_${player.id}`, player.path, { frameWidth: 128, frameHeight: 128 });
-            }
+        }
+    }
+    async getPlayersList() {
+        
+        return new Promise((resolve) => {
+            apiclient.getAllPlayers((data) => {
+                this.playersList = data;
+                resolve();
+            });
         });
     }
 
-    initianValues() {
-        this.playersList.forEach(player => {
-            if (player.id == this.playerId) {
-                this.currentPlayer = player;
-            }
-        });
+    async initializeGame() {
+        await this.loadPlayersTextures();
+        this.load.start();
+        
     }
+
+    // async loadPlayersTextures() {
+    //     console.log("Cargando texturas de jugadores");
+    //     this.playersList.forEach(player => {
+    //         const path = player.path.startsWith('/') ? player.path : '/' + player.path;
+    //         if (player.id == this.currentPlayer.id) {
+    //             console.log("Cargando textura de avatar:", path);
+    //             this.load.spritesheet("avatar", path, { frameWidth: 128, frameHeight: 128 });
+    //         } else {
+    //             console.log("Cargando textura de oponente:", path);
+    //             this.load.spritesheet(`opponentPlayer_${player.id}`, path, { frameWidth: 128, frameHeight: 128 });
+    //         }
+    //     });
+    
+    //     return new Promise(resolve => {
+    //         this.load.once('complete', () => {
+    //             console.log("Texturas de jugadores cargadas");
+    //             resolve();
+    //         });
+    //     });
+    // }
+    // problema con playersList
+    async initianValues() {
+        return new Promise((resolve) => {
+            apiclient.getPlayerById(this.playerId, (data) => {
+                this.currentPlayer = data;
+                resolve();
+            });
+        });
+        // this.playersList.forEach(player => {
+        //     if (player.id == this.playerId) {
+        //         this.currentPlayer = player;
+        //     }
+        // });
+    }
+
 
     async connectToWebSocket() {
         const currentUrl = window.location.href;
@@ -58,7 +100,9 @@ class game extends Phaser.Scene {
         const id = params.get('id');
         this.playerId = id;
 
-        this.sceneWs = new WebSocket(`ws:localhost:8081?sessionId=${id}`);
+
+        this.sceneWs = new WebSocket(`wss://flagwarriorswebsocket-g4deaxdrcybycffs.northeurope-01.azurewebsites.net?sessionId=${id}`)
+        //this.sceneWs = new WebSocket(`ws:localhost:8081?sessionId=${id}`);
         
         this.sceneWs.onopen = async () => {
             this.sendStartGameMessage();
@@ -72,35 +116,114 @@ class game extends Phaser.Scene {
                     break;
             }
         };
-    }
 
-    create() {
+    async create() {
+        console.log("iniciando create");
+        
+        // Configuración básica
         this.cursors = this.input.keyboard.createCursorKeys();
-
-        // Animaciones
-        this.anims.create({
-            key: "caminar",
-            frames: this.anims.generateFrameNumbers("avatar", { start: 1, end: 7 }),
-            frameRate: 10,
-            repeat: -1
+        
+        // Crear el mapa y elementos básicos primero
+        this.createMap();
+        this.createFlags();
+    
+        // Cargar texturas si es necesario
+        if (!this.textures.exists('avatar')) {
+            console.log("Recargando texturas de jugadores");
+            await this.loadPlayersTextures();
+        }
+        
+        // Esperar a que todas las texturas estén cargadas
+        await new Promise(resolve => {
+            if (this.load.isLoading) {
+                this.load.once('complete', resolve);
+            } else {
+                resolve();
+            }
         });
-        this.anims.create({
-            key: "quieto",
-            frames: this.anims.generateFrameNumbers("avatar", { start: 0, end: 0 }),
-            frameRate: 10,
-            repeat: -1
+        
+        // Renderizar jugadores después de que las texturas estén listas
+        await this.renderPlayers();
+    
+        // Verificar si la textura del avatar existe antes de crear animaciones
+        if (this.textures.exists('avatar')) {
+            console.log("Creando animaciones con textura existente");
+            this.createAnimations();
+        } else {
+            console.error("Error: Textura 'avatar' no encontrada después de cargar");
+        }
+    }
+    
+    createAnimations() {
+        if (!this.textures.exists('avatar')) {
+            console.error("Textura 'avatar' no encontrada");
+            return;
+        }
+    
+        console.log("Creando animaciones para avatar");
+        try {
+            this.anims.create({
+                key: "caminar",
+                frames: this.anims.generateFrameNumbers("avatar", { start: 1, end: 7 }),
+                frameRate: 10,
+                repeat: -1
+            });
+            
+            this.anims.create({
+                key: "quieto",
+                frames: this.anims.generateFrameNumbers("avatar", { start: 0, end: 0 }),
+                frameRate: 10,
+                repeat: -1
+            });
+            console.log("Animaciones creadas exitosamente");
+        } catch (error) {
+            console.error("Error creando animaciones:", error);
+        }
+    }
+    
+    async loadPlayersTextures() {
+        console.log("Cargando texturas de jugadores");
+        if (!this.playersList) {
+            await new Promise((resolve) => {
+                apiclient.getAllPlayers((data) => {
+                    this.playersList = data;
+                    resolve();
+                });
+            });
+        }
+        this.playersList.forEach(player => {
+            if (player.id == this.currentPlayer.id) {
+                console.log("Cargando textura de avatar:", player.path);
+                this.load.spritesheet("avatar", player.path, { frameWidth: 128, frameHeight: 128 });
+            } else {
+                console.log("Cargando textura de oponente:", player.path);
+                this.load.spritesheet(`opponentPlayer_${player.id}`, player.path, { frameWidth: 128, frameHeight: 128 });
+            }
         });
-
-        // Mapa
+    
+        return new Promise((resolve) => {
+            this.load.once('complete', () => {
+                if (this.textures.exists('avatar')) {
+                    console.log("Textura de avatar cargada exitosamente");
+                    resolve();
+                } else {
+                    console.error("Error: La textura no se cargó correctamente");
+                    resolve(); // Resolvemos igual para no bloquear el flujo
+                }
+            });
+            this.load.start();
+        });
+    }
+    createMap() {
         var map = this.make.tilemap({ key: "mapa" });
         var tileset = map.addTilesetImage("muros", "textura");
-
         var fondo = map.createLayer("pisosDelJuego", tileset);
         fondo.setScale(2.25);
         fondo.setCollisionByProperty({ colision: true });
         this.col = fondo;
 
-        // Banderas
+    }
+    createFlags(){
         this.bandera1 = this.physics.add.sprite(1280, 950, 'banderaAzul').setScale(0.3).setSize(100, 100);
         this.bandera2 = this.physics.add.sprite(180, 120, 'banderaNaranja').setScale(0.3).setSize(100, 100);
 
@@ -109,6 +232,23 @@ class game extends Phaser.Scene {
 
         this.poder = this.physics.add.sprite(1000, 1000, 'guepardex').setScale(0.3).setSize(500, 500);
     }
+
+    }
+    // createAnimations(){
+    //     this.anims.create({
+    //         key: "caminar",
+    //         frames: this.anims.generateFrameNumbers("avatar", { start: 1, end: 7 }),
+    //         frameRate: 10,
+    //         repeat: -1
+    //     });
+    //     this.anims.create({
+    //         key: "quieto",
+    //         frames: this.anims.generateFrameNumbers("avatar", { start: 0, end: 0 }),
+    //         frameRate: 10,
+    //         repeat: -1
+    //     });
+
+    // }
 
     async sendStartGameMessage() {
         return new Promise((resolve, reject) => {
@@ -121,9 +261,10 @@ class game extends Phaser.Scene {
                     switch(data.type) {
                         case 'startGame':
                             this.playersList = data.playersList;
-                            console.log(this.playersList);
-                            this.initianValues();
-                            this.initializeGame();
+
+
+                            // this.initianValues();
+                            // this.initializeGame();
                             resolve(data);
                             break;
 
@@ -206,6 +347,7 @@ class game extends Phaser.Scene {
                                         }
                                     }, 3000);                    
                                 }
+
                             }
                             break;
 
@@ -306,10 +448,19 @@ class game extends Phaser.Scene {
             team: this.currentPlayer.team,
         };
         this.sceneWs.send(JSON.stringify(flagCaptureMessage));
+        app.captureFlag(this.playerId, function(response) {
+            if (response) {
+                console.log("Respuesta del servidor:", response);
+            } else {
+                console.error("No se recibió respuesta del servidor.");
+            }
+        });
     }
+  }
+
+
 
     collectPower(player, poder) {
-
         if (poder.active) {
             poder.disableBody(true, true);
             
@@ -341,7 +492,6 @@ class game extends Phaser.Scene {
     
             this.currentPlayer.flag = false;
 
-
             // Reaparecer la bandera según el equipo
             if (this.currentPlayer.path == "../images/playerA.png") {
                 setTimeout(() => {
@@ -356,7 +506,18 @@ class game extends Phaser.Scene {
     }
     
 
-    renderPlayers() {
+    async renderPlayers() {
+        // Asegurar que tenemos la lista de jugadores
+        if (!this.playersList) {
+            await new Promise((resolve) => {
+                apiclient.getAllPlayers((data) => {
+                    this.playersList = data;
+                    resolve();
+                });
+            });
+        }
+    
+        // Una vez que tenemos la lista, procedemos con el renderizado
         this.playersList.forEach(player => {
             if(player.id == this.currentPlayer.id) {
                 this.avatar = this.physics.add.sprite(this.currentPlayer.x, this.currentPlayer.y, "avatar");
@@ -364,7 +525,7 @@ class game extends Phaser.Scene {
                 this.avatar.setCollideWorldBounds(true);
                 this.avatar.setSize(30, 80);
                 this.avatar.setOffset(50, 47);
-
+    
                 this.renderPlayer(player);
                 this.physics.add.collider(this.avatar, this.col);
 
@@ -383,7 +544,6 @@ class game extends Phaser.Scene {
                 oponent.setCollideWorldBounds(true);
                 oponent.setSize(30, 80);
                 oponent.setOffset(46, 47);
-
                 this.oponentes[player.id] = oponent;
                 this.renderPlayer(player);
             }

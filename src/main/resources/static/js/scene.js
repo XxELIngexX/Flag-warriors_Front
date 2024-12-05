@@ -39,8 +39,8 @@ class game extends Phaser.Scene {
         await this.loadPlayersTextures();
         this.load.start();
     }
-        }
-    }
+        
+    
     async getPlayersList() {
         
         return new Promise((resolve) => {
@@ -116,6 +116,7 @@ class game extends Phaser.Scene {
                     break;
             }
         };
+    }
 
     async create() {
         console.log("iniciando create");
@@ -233,7 +234,8 @@ class game extends Phaser.Scene {
         this.poder = this.physics.add.sprite(1000, 1000, 'guepardex').setScale(0.3).setSize(500, 500);
     }
 
-    }
+
+
     // createAnimations(){
     //     this.anims.create({
     //         key: "caminar",
@@ -456,7 +458,7 @@ class game extends Phaser.Scene {
             }
         });
     }
-  }
+  
 
 
 

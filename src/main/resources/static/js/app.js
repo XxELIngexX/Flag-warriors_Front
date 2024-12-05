@@ -28,6 +28,11 @@ var app = (function () {
             apiclient.captureFlag(id,callback);
 
         },
+        
+
+        capturePower: function(id,callback){
+            apiclient.capturePower(id,callback);
+        },
 
 
         capturePower: function(id,callback){

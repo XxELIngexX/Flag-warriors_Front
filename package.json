@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "Codigo fuente del proyecto de Arsw del backend",
   "main": "index.js",
-"scripts": {
+  "scripts": {
     "start": "http-server ./ -p 3000"
-},
+  },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "flag-warriors-frontend": "file:"
+  }
 }

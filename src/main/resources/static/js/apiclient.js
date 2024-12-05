@@ -1,4 +1,5 @@
 var apiclient = (function () {
+
     var apiUrl = "https://flagwarriorsbackend-fnhxgjb2beeqb6ct.northeurope-01.azurewebsites.net/api";
     //var apiUrl = "http://localhost:8080/api";
 
@@ -122,6 +123,24 @@ var apiclient = (function () {
                 }
             });
         },
+
+        capturePower: function (playerId, callback) {
+            $.ajax({
+                url: `${apiUrl}/players/${playerId}/capture-power`, 
+                method: "POST",
+                headers:{
+                    "Access-Control-Allow-Origin":"*/*",
+                    "Origin": "http://localhost:3000"
+                },
+                success: function (response) {
+                    callback(response);
+                },
+                error: function (error) {
+                    console.error("Error al capturar la bandera:", error);
+                }
+            });
+        },
+    
 
         captureFlag: function (playerId, callback) {
             $.ajax({

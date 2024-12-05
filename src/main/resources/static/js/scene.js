@@ -17,6 +17,7 @@ class game extends Phaser.Scene {
         this.connectToWebSocket();
     }
     
+
     async preload() {
         // Cargas básicas
         this.load.image("textura", "../map/Textures-16.png");
@@ -24,8 +25,7 @@ class game extends Phaser.Scene {
         this.load.image("banderaAzul", "../images/banderaAzul.png");
         this.load.image("banderaNaranja", "../images/banderaNaranja.png");
         this.load.image("guepardex", "../images/guepardex.png");
-    
-        // Esperar que se carguen los recursos básicos
+       // Esperar que se carguen los recursos básicos
         await new Promise(resolve => this.load.once('complete', resolve));
         this.load.start();
     
@@ -38,6 +38,8 @@ class game extends Phaser.Scene {
         // Cargar las texturas de los jugadores
         await this.loadPlayersTextures();
         this.load.start();
+    }
+        }
     }
     async getPlayersList() {
         
@@ -90,12 +92,14 @@ class game extends Phaser.Scene {
         // });
     }
 
+
     async connectToWebSocket() {
         const currentUrl = window.location.href;
         const url = new URL(currentUrl);
         const params = new URLSearchParams(url.search);
         const id = params.get('id');
         this.playerId = id;
+
 
         this.sceneWs = new WebSocket(`wss://flagwarriorswebsocket-g4deaxdrcybycffs.northeurope-01.azurewebsites.net?sessionId=${id}`)
         //this.sceneWs = new WebSocket(`ws:localhost:8081?sessionId=${id}`);
@@ -112,7 +116,6 @@ class game extends Phaser.Scene {
                     break;
             }
         };
-    }
 
     async create() {
         console.log("iniciando create");
@@ -218,6 +221,7 @@ class game extends Phaser.Scene {
         fondo.setScale(2.25);
         fondo.setCollisionByProperty({ colision: true });
         this.col = fondo;
+
     }
     createFlags(){
         this.bandera1 = this.physics.add.sprite(1280, 950, 'banderaAzul').setScale(0.3).setSize(100, 100);
@@ -227,6 +231,7 @@ class game extends Phaser.Scene {
         this.baseB = this.physics.add.sprite(1280, 900).setSize(80, 20);
 
         this.poder = this.physics.add.sprite(1000, 1000, 'guepardex').setScale(0.3).setSize(500, 500);
+    }
 
     }
     // createAnimations(){
@@ -256,6 +261,8 @@ class game extends Phaser.Scene {
                     switch(data.type) {
                         case 'startGame':
                             this.playersList = data.playersList;
+
+
                             // this.initianValues();
                             // this.initializeGame();
                             resolve(data);
@@ -291,6 +298,7 @@ class game extends Phaser.Scene {
                             if (this.poder) {
                                 this.poder.disableBody(true, true);
                             }
+
                             break;
 
                         case 'actualizarPuntos':
@@ -307,6 +315,39 @@ class game extends Phaser.Scene {
                                 const equipoTexto = data.team === "A" ? "Equipo Naranja" : "Equipo Azul";
                                 puntajeElemento.text(`${equipoTexto}: ${puntajeActual}`);
                                 this.showGameMessage(`El ${equipoTexto} hizo un punto`);
+
+                                if (puntajeActual >= 3) {
+                                    this.showGameMessage(`¡${equipoTexto} ha ganado el juego!`);
+                                    const finish = {
+                                        type: 'finish'
+                                    };
+                                    this.sceneWs.send(JSON.stringify(finish));
+                                } else {
+                                    setTimeout(() => {
+                                        // Si el equipo A anotó, solo reaparece la bandera azul (bandera1)
+                                        if (data.team === "A") {
+                                            // Desactivar cualquier bandera visible primero
+                                            this.bandera1.disableBody(true, true);
+                                            this.bandera2.disableBody(true, true);
+                                            // Reaparecer solo la bandera azul
+                                            this.bandera1.enableBody(false, 1280, 950, true, true);
+                                            this.bandera1.setVisible(true);
+                                        } else {
+                                            // Si el equipo B anotó, solo reaparece la bandera naranja (bandera2)
+                                            this.bandera1.disableBody(true, true);
+                                            this.bandera2.disableBody(true, true);
+                                            // Reaparecer solo la bandera naranja
+                                            this.bandera2.enableBody(false, 180, 120, true, true);
+                                            this.bandera2.setVisible(true);
+                                        }
+                                        
+                                        // Resetear el estado de la bandera para el jugador actual
+                                        if (this.currentPlayer.team === data.team) {
+                                            this.currentPlayer.flag = false;
+                                        }
+                                    }, 3000);                    
+                                }
+
                             }
                             break;
 
@@ -384,9 +425,23 @@ class game extends Phaser.Scene {
     }
 
     collectFlag(player, flag) {
+        // Validaciones para la captura
+        if (this.currentPlayer.flag) {
+            return;
+        }
+    
+        const isTeamA = this.currentPlayer.team === "A";
+        const isCorrectFlag = (isTeamA && flag === this.bandera1) || (!isTeamA && flag === this.bandera2);
+        
+        if (!isCorrectFlag) {
+            return;
+        }
+    
+        // Captura de la bandera
         this.currentPlayer.flag = true;
         flag.disableBody(true, true);
-
+    
+        // Mensaje al servidor
         const flagCaptureMessage = {
             type: 'flagCaptured',
             playerId: this.currentPlayer.id,
@@ -401,6 +456,9 @@ class game extends Phaser.Scene {
             }
         });
     }
+  }
+
+
 
     collectPower(player, poder) {
         if (poder.active) {
@@ -425,24 +483,28 @@ class game extends Phaser.Scene {
         }
     }
 
-    actualizarPuntuaciones(flag) {
-        if(this.currentPlayer.flag == true) {
+    actualizarPuntuaciones() {
+        if(this.currentPlayer.flag) {
             const actualizarPuntos = {
                 type: 'actualizarPuntos'
             };
             this.sceneWs.send(JSON.stringify(actualizarPuntos));
-
+    
             this.currentPlayer.flag = false;
-            flag.disableBody(false, false);
 
-            setTimeout(() => {
-                const finish = {
-                    type: 'finish'
-                };
-                this.sceneWs.send(JSON.stringify(finish));
-            }, 10000);
+            // Reaparecer la bandera según el equipo
+            if (this.currentPlayer.path == "../images/playerA.png") {
+                setTimeout(() => {
+                    this.bandera2.enableBody(false, 180, 120, true, true);
+                }, 3000);
+            } else {
+                setTimeout(() => {
+                    this.bandera1.enableBody(false, 1280, 950, true, true);
+                }, 3000);
+            }
         }
     }
+    
 
     async renderPlayers() {
         // Asegurar que tenemos la lista de jugadores
@@ -466,14 +528,14 @@ class game extends Phaser.Scene {
     
                 this.renderPlayer(player);
                 this.physics.add.collider(this.avatar, this.col);
-    
+
                 if (this.currentPlayer.path == "../images/playerA.png") {
                     this.physics.add.overlap(this.avatar, this.bandera1, (player, flag) => this.collectFlag(player, flag), null, this);
-                    this.physics.add.overlap(this.avatar, this.baseA, (flag) => this.actualizarPuntuaciones(flag), null, this);
+                    this.physics.add.overlap(this.avatar, this.baseA, () => this.actualizarPuntuaciones(), null, this);
                     this.physics.add.overlap(this.avatar, this.poder, (player, poder) => this.collectPower(player, poder), null, this);
                 } else {
                     this.physics.add.overlap(this.avatar, this.bandera2, (player, flag) => this.collectFlag(player, flag), null, this);
-                    this.physics.add.overlap(this.avatar, this.baseB, (flag) => this.actualizarPuntuaciones(flag), null, this);
+                    this.physics.add.overlap(this.avatar, this.baseB, () => this.actualizarPuntuaciones(), null, this);
                     this.physics.add.overlap(this.avatar, this.poder, (player, poder) => this.collectPower(player, poder), null, this);
                 }
             } else {
@@ -482,7 +544,6 @@ class game extends Phaser.Scene {
                 oponent.setCollideWorldBounds(true);
                 oponent.setSize(30, 80);
                 oponent.setOffset(46, 47);
-    
                 this.oponentes[player.id] = oponent;
                 this.renderPlayer(player);
             }

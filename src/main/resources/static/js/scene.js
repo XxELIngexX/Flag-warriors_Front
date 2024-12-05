@@ -121,6 +121,18 @@ class game extends Phaser.Scene {
     async create() {
         console.log("iniciando create");
         
+        // Asegurarse de que currentPlayer esté disponible
+        if (!this.currentPlayer) {
+            console.log("Cargando current player...");
+            await this.initianValues();
+        }
+    
+        // Asegurarse de que la lista de jugadores esté disponible
+        if (!this.playersList) {
+            console.log("Cargando lista de jugadores...");
+            await this.getPlayersList();
+        }
+        
         // Configuración básica
         this.cursors = this.input.keyboard.createCursorKeys();
         
@@ -128,11 +140,9 @@ class game extends Phaser.Scene {
         this.createMap();
         this.createFlags();
     
-        // Cargar texturas si es necesario
-        if (!this.textures.exists('avatar')) {
-            console.log("Recargando texturas de jugadores");
-            await this.loadPlayersTextures();
-        }
+        // Cargar texturas (ahora ya tenemos currentPlayer y playersList)
+        console.log("Cargando texturas...");
+        await this.loadPlayersTextures();
         
         // Esperar a que todas las texturas estén cargadas
         await new Promise(resolve => {
@@ -143,10 +153,10 @@ class game extends Phaser.Scene {
             }
         });
         
-        // Renderizar jugadores después de que las texturas estén listas
+        // Renderizar jugadores después de que todo esté listo
         await this.renderPlayers();
     
-        // Verificar si la textura del avatar existe antes de crear animaciones
+        // Crear animaciones al final
         if (this.textures.exists('avatar')) {
             console.log("Creando animaciones con textura existente");
             this.createAnimations();
@@ -184,14 +194,12 @@ class game extends Phaser.Scene {
     
     async loadPlayersTextures() {
         console.log("Cargando texturas de jugadores");
-        if (!this.playersList) {
-            await new Promise((resolve) => {
-                apiclient.getAllPlayers((data) => {
-                    this.playersList = data;
-                    resolve();
-                });
-            });
+        
+        if (!this.currentPlayer || !this.playersList) {
+            console.error("No se pueden cargar texturas: faltan datos necesarios");
+            return;
         }
+    
         this.playersList.forEach(player => {
             if (player.id == this.currentPlayer.id) {
                 console.log("Cargando textura de avatar:", player.path);
@@ -209,7 +217,7 @@ class game extends Phaser.Scene {
                     resolve();
                 } else {
                     console.error("Error: La textura no se cargó correctamente");
-                    resolve(); // Resolvemos igual para no bloquear el flujo
+                    resolve();
                 }
             });
             this.load.start();

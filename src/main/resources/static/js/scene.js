@@ -157,6 +157,7 @@ class game extends Phaser.Scene {
                             if (this.poder) {
                                 this.poder.disableBody(true, true);
                             }
+
                             break;
 
                         case 'actualizarPuntos':
@@ -182,23 +183,30 @@ class game extends Phaser.Scene {
                                     this.sceneWs.send(JSON.stringify(finish));
                                 } else {
                                     setTimeout(() => {
+                                        // Si el equipo A anotó, solo reaparece la bandera azul (bandera1)
                                         if (data.team === "A") {
-                                            this.bandera2.enableBody(false, 180, 120, true, true);
-                                            this.bandera1.setVisible(true);
-                                            if (this.currentPlayer.team === "A") {
-                                                this.currentPlayer.flag = false;
-                                            }
-                                        } else {
+                                            // Desactivar cualquier bandera visible primero
+                                            this.bandera1.disableBody(true, true);
+                                            this.bandera2.disableBody(true, true);
+                                            // Reaparecer solo la bandera azul
                                             this.bandera1.enableBody(false, 1280, 950, true, true);
+                                            this.bandera1.setVisible(true);
+                                        } else {
+                                            // Si el equipo B anotó, solo reaparece la bandera naranja (bandera2)
+                                            this.bandera1.disableBody(true, true);
+                                            this.bandera2.disableBody(true, true);
+                                            // Reaparecer solo la bandera naranja
+                                            this.bandera2.enableBody(false, 180, 120, true, true);
                                             this.bandera2.setVisible(true);
-                                            if (this.currentPlayer.team === "B") {
-                                                this.currentPlayer.flag = false;
-                                            }
                                         }
-                                    }, 3000); 
+                                        
+                                        // Resetear el estado de la bandera para el jugador actual
+                                        if (this.currentPlayer.team === data.team) {
+                                            this.currentPlayer.flag = false;
+                                        }
+                                    }, 3000);                    
                                 }
                             }
-
                             break;
 
                         case 'finish':
@@ -275,25 +283,33 @@ class game extends Phaser.Scene {
     }
 
     collectFlag(player, flag) {
+        // Validaciones para la captura
+        if (this.currentPlayer.flag) {
+            return;
+        }
+    
+        const isTeamA = this.currentPlayer.team === "A";
+        const isCorrectFlag = (isTeamA && flag === this.bandera1) || (!isTeamA && flag === this.bandera2);
+        
+        if (!isCorrectFlag) {
+            return;
+        }
+    
+        // Captura de la bandera
         this.currentPlayer.flag = true;
         flag.disableBody(true, true);
-
+    
+        // Mensaje al servidor
         const flagCaptureMessage = {
             type: 'flagCaptured',
             playerId: this.currentPlayer.id,
             team: this.currentPlayer.team,
         };
         this.sceneWs.send(JSON.stringify(flagCaptureMessage));
-        app.captureFlag(this.playerId, function(response) {
-            if (response) {
-                console.log("Respuesta del servidor:", response);
-            } else {
-                console.error("No se recibió respuesta del servidor.");
-            }
-        });
     }
 
     collectPower(player, poder) {
+
         if (poder.active) {
             poder.disableBody(true, true);
             
@@ -324,7 +340,8 @@ class game extends Phaser.Scene {
             this.sceneWs.send(JSON.stringify(actualizarPuntos));
     
             this.currentPlayer.flag = false;
-    
+
+
             // Reaparecer la bandera según el equipo
             if (this.currentPlayer.path == "../images/playerA.png") {
                 setTimeout(() => {

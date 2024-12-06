@@ -12,11 +12,12 @@ class Game extends Phaser.Scene {
         this.sceneWs = null;
         this.col = null;
         this.contador = 0;
-        this.baseA;
-        this.baseB;
-        this.connectToWebSocket();
+        this.baseA = null;
+        this.baseB = null;
     }
-    
+    async init() {
+        await this.connectToWebSocket();
+    }
 
     async preload() {
         // Cargas básicas

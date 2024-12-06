@@ -19,9 +19,11 @@ let avatar;
             }
         },
         scene: [gameScene]
+        
     }
-    let juego = new Phaser.Game(config);
-
+    gameScene.init().then(() => {
+        let juego = new Phaser.Game(config);
+    });
     
 
 

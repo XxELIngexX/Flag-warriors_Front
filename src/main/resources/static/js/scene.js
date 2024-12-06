@@ -77,20 +77,12 @@ class Game extends Phaser.Scene {
 
 
         this.sceneWs = new WebSocket(`wss://flagwarriorswebsocket-g4deaxdrcybycffs.northeurope-01.azurewebsites.net?sessionId=${id}`)
-        //this.sceneWs = new WebSocket(`ws:localhost:8081?sessionId=${id}`);
         
         this.sceneWs.onopen = async () => {
             this.sendStartGameMessage();
         };
 
-        this.sceneWs.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            switch (data.type) {
-                case 'playerMoved':
-                    console.log("el oponente se movio en conection");
-                    break;
-            }
-        };
+        
     }
 
     async create() {
@@ -128,7 +120,6 @@ class Game extends Phaser.Scene {
             }
         });
         
-        // Renderizar jugadores después de que todo esté listo
         await this.renderPlayers();
     
         // Crear animaciones al final
@@ -217,119 +208,89 @@ class Game extends Phaser.Scene {
         this.poder = this.physics.add.sprite(1000, 1000, 'guepardex').setScale(0.3).setSize(500, 500);
     }
 
-
-
     async sendStartGameMessage() {
         return new Promise((resolve, reject) => {
-            if (this.sceneWs.readyState === WebSocket.OPEN) {
-                const joinMessage = { type: 'startGame' };
-                this.sceneWs.send(JSON.stringify(joinMessage));
-
-                this.sceneWs.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
-                    switch(data.type) {
-                        case 'startGame':
-                            this.playersList = data.playersList;
-
-
-                            resolve(data);
-                            break;
-
-                        case 'playerMoved':
-                            let oponentToUpdate = this.oponentes[data.id];
-                            oponentToUpdate.setPosition(data.x, data.y);
-                            break;
-
-                        case 'flagCaptured':
-                            if(data.team === "A") {
-                                this.showGameMessage(`la bandera del equipo Naranja fue capturada por ${data.name}`);
-                                this.bandera2.disableBody(true, true);
-                            } else {
-                                this.showGameMessage(`la bandera del equipo Azul fue capturada por ${data.name}`);
-                                this.bandera1.disableBody(true, true);
-                            }
-                            break;
-
-                        case 'powerCaptured':
-                            this.showGameMessage(`${data.name} del equipo ${data.team === 'A' ? 'Naranja' : 'Azul'} ha recogido el poder!`);
-                            
-                            let powerScoreElement = data.team === "A" ? $('#equipoA') : $('#equipoB');
-                            if (powerScoreElement) {
-                                let currentScore = parseInt(powerScoreElement.text().match(/\d+/)) || 0;
-                                currentScore += 1;
-                                const teamText = data.team === "A" ? "Equipo Naranja" : "Equipo Azul";
-                                powerScoreElement.text(`${teamText}: ${currentScore}`);
-                                
-                            }
-                            
-                            if (this.poder) {
-                                this.poder.disableBody(true, true);
-                            }
-
-                            break;
-
-                        case 'actualizarPuntos':
-                            let puntajeElemento = null;
-                            if (data.team === "A") {
-                                puntajeElemento = $('#equipoA');
-                            } else {
-                                puntajeElemento = $('#equipoB');
-                            }
-                            
-                            if (puntajeElemento) {
-                                let puntajeActual = parseInt(puntajeElemento.text().match(/\d+/)) || 0;
-                                puntajeActual += 1;
-                                const equipoTexto = data.team === "A" ? "Equipo Naranja" : "Equipo Azul";
-                                puntajeElemento.text(`${equipoTexto}: ${puntajeActual}`);
-                                this.showGameMessage(`El ${equipoTexto} hizo un punto`);
-
-                                if (puntajeActual >= 3) {
-                                    this.showGameMessage(`¡${equipoTexto} ha ganado el juego!`);
-                                    const finish = {
-                                        type: 'finish'
-                                    };
-                                    this.sceneWs.send(JSON.stringify(finish));
-                                } else {
-                                    setTimeout(() => {
-                                        // Si el equipo A anotó, solo reaparece la bandera azul (bandera1)
-                                        if (data.team === "A") {
-                                            // Desactilet cualquier bandera visible primero
-                                            this.bandera1.disableBody(true, true);
-                                            this.bandera2.disableBody(true, true);
-                                            // Reaparecer solo la bandera azul
-                                            this.bandera1.enableBody(false, 1280, 950, true, true);
-                                            this.bandera1.setVisible(true);
-                                        } else {
-                                            // Si el equipo B anotó, solo reaparece la bandera naranja (bandera2)
-                                            this.bandera1.disableBody(true, true);
-                                            this.bandera2.disableBody(true, true);
-                                            // Reaparecer solo la bandera naranja
-                                            this.bandera2.enableBody(false, 180, 120, true, true);
-                                            this.bandera2.setVisible(true);
-                                        }
-                                        
-                                        // Resetear el estado de la bandera para el jugador actual
-                                        if (this.currentPlayer.team === data.team) {
-                                            this.currentPlayer.flag = false;
-                                        }
-                                    }, 3000);                    
-                                }
-
-                            }
-                            break;
-
-                        case 'finish':
-                            window.location.href = '/final';
-                            break;
-                    }
-                };
-            } else {
-                console.error("WebSocket no está abierto");
+            if (this.sceneWs.readyState !== WebSocket.OPEN) {
                 reject("WebSocket no está abierto");
+                return;
             }
+    
+            const joinMessage = { type: 'startGame' };
+            this.sceneWs.send(JSON.stringify(joinMessage));
+            this.sceneWs.onmessage = (event) => this.handleWebSocketMessage(event, resolve);
         });
     }
-
+    
+    handleWebSocketMessage(event, resolve) {
+        const data = JSON.parse(event.data);
+        switch(data.type) {
+            case 'startGame':
+                this.handleStartGame(data, resolve);
+                break;
+            case 'playerMoved':
+                this.handlePlayerMoved(data);
+                break;
+            case 'flagCaptured':
+                this.handleFlagCaptured(data);
+                break;
+            case 'powerCaptured':
+                this.handlePowerCaptured(data);
+                break;
+            case 'actualizarPuntos':
+                this.handleActualizarPuntos(data);
+                break;
+            case 'finish':
+                window.location.href = '/final';
+                break;
+        }
+    }
+    
+    handleStartGame(data, resolve) {
+        this.playersList = data.playersList;
+        resolve(data);
+    }
+    
+    handlePlayerMoved(data) {
+        let oponentToUpdate = this.oponentes[data.id];
+        oponentToUpdate.setPosition(data.x, data.y);
+    }
+    
+    handleFlagCaptured(data) {
+        if(data.team === "A") {
+            this.showGameMessage(`la bandera del equipo Naranja fue capturada por ${data.name}`);
+            this.bandera2.disableBody(true, true);
+        } else {
+            this.showGameMessage(`la bandera del equipo Azul fue capturada por ${data.name}`);
+            this.bandera1.disableBody(true, true);
+        }
+    }
+    
+    handlePowerCaptured(data) {
+        this.showGameMessage(`${data.name} del equipo ${data.team === 'A' ? 'Naranja' : 'Azul'} ha recogido el poder!`);
+        this.actualizarPuntajePoder(data);
+        if (this.poder) {
+            this.poder.disableBody(true, true);
+        }
+    }
+    
+    handleActualizarPuntos(data) {
+        const puntaje = this.actualizarPuntajeEquipo(data);
+        if (puntaje >= 3) {
+            this.finalizarJuego(data);
+        } else {
+            this.recolocarBanderas(data);
+        }
+    }
+    
+    actualizarPuntajePoder(data) {
+        let powerScoreElement = data.team === "A" ? $('#equipoA') : $('#equipoB');
+        if (powerScoreElement) {
+            let currentScore = parseInt(powerScoreElement.text().match(/\d+/)) || 0;
+            currentScore += 1;
+            const teamText = data.team === "A" ? "Equipo Naranja" : "Equipo Azul";
+            powerScoreElement.text(`${teamText}: ${currentScore}`);
+        }
+    }
     showGameMessage(message) {
         const messageBox = document.getElementById("game-message");
         messageBox.innerHTML = "";

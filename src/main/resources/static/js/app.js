@@ -1,5 +1,4 @@
 let app = (function () {
-    let score = 0;
     let currentPlayer = null;
 
 

@@ -1,11 +1,10 @@
 
-export let players = [];
-export let lobbyWs = null; // WebSocket globalmente accesible
-export let currentPlayer;
+export const players = [];
+export const lobbyWs = null; // WebSocket globalmente accesible
+export const currentPlayer = null;
 
 let lobby = (function () { 
     let currentPlayer = null;
-    let countdownTimer = null;
 
 
 
@@ -14,11 +13,9 @@ let lobby = (function () {
         async connectToWebSocket() {
             await this.getPlayer();
             lobbyWs = new WebSocket(`wss://flagwarriorswebsocket-g4deaxdrcybycffs.northeurope-01.azurewebsites.net?sessionId=${currentPlayer.id}`)
-            //lobbyWs = new WebSocket(`ws://localhost:8081?sessionId=${currentPlayer.id}`);
 
             return new Promise((resolve, reject) => {
                 lobbyWs.onopen = async () => {
-                    //console.log('Conectado al servidor de WebSocket');
                     this.joinRoom('abc123'); 
                     this.renderPlayers();
                     resolve(); // Resuelve cuando la conexión esté lista

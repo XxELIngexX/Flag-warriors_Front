@@ -1,4 +1,4 @@
-class game extends Phaser.Scene {
+class Game extends Phaser.Scene {
     constructor() {
         super("gameMap");
         this.apiUrl = "https://flagwarriorsbackend-fnhxgjb2beeqb6ct.northeurope-01.azurewebsites.net/api"
@@ -56,28 +56,6 @@ class game extends Phaser.Scene {
         this.load.start();
         
     }
-
-    // async loadPlayersTextures() {
-    //     console.log("Cargando texturas de jugadores");
-    //     this.playersList.forEach(player => {
-    //         const path = player.path.startsWith('/') ? player.path : '/' + player.path;
-    //         if (player.id == this.currentPlayer.id) {
-    //             console.log("Cargando textura de avatar:", path);
-    //             this.load.spritesheet("avatar", path, { frameWidth: 128, frameHeight: 128 });
-    //         } else {
-    //             console.log("Cargando textura de oponente:", path);
-    //             this.load.spritesheet(`opponentPlayer_${player.id}`, path, { frameWidth: 128, frameHeight: 128 });
-    //         }
-    //     });
-    
-    //     return new Promise(resolve => {
-    //         this.load.once('complete', () => {
-    //             console.log("Texturas de jugadores cargadas");
-    //             resolve();
-    //         });
-    //     });
-    // }
-    // problema con playersList
     async initianValues() {
         return new Promise((resolve) => {
             apiclient.getPlayerById(this.playerId, (data) => {
@@ -85,11 +63,7 @@ class game extends Phaser.Scene {
                 resolve();
             });
         });
-        // this.playersList.forEach(player => {
-        //     if (player.id == this.playerId) {
-        //         this.currentPlayer = player;
-        //     }
-        // });
+
     }
 
 
@@ -244,22 +218,6 @@ class game extends Phaser.Scene {
 
 
 
-    // createAnimations(){
-    //     this.anims.create({
-    //         key: "caminar",
-    //         frames: this.anims.generateFrameNumbers("avatar", { start: 1, end: 7 }),
-    //         frameRate: 10,
-    //         repeat: -1
-    //     });
-    //     this.anims.create({
-    //         key: "quieto",
-    //         frames: this.anims.generateFrameNumbers("avatar", { start: 0, end: 0 }),
-    //         frameRate: 10,
-    //         repeat: -1
-    //     });
-
-    // }
-
     async sendStartGameMessage() {
         return new Promise((resolve, reject) => {
             if (this.sceneWs.readyState === WebSocket.OPEN) {
@@ -273,8 +231,6 @@ class game extends Phaser.Scene {
                             this.playersList = data.playersList;
 
 
-                            // this.initianValues();
-                            // this.initializeGame();
                             resolve(data);
                             break;
 
@@ -481,7 +437,6 @@ class game extends Phaser.Scene {
             };
             
             this.sceneWs.send(JSON.stringify(powerCaptureMessage));
-            //this.showGameMessage(`¡Has recogido el poder!`);
             
             app.capturePower(this.playerId, function(response) {
                 if (response) {

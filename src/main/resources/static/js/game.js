@@ -1,7 +1,7 @@
 
 let avatar;
 
-    const gameScene = new game();
+    const gameScene = new Game();
 
     let config = {
         type: Phaser.AUTO,

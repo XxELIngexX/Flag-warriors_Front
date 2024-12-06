@@ -6,7 +6,8 @@ COPY package*.json ./
 
 RUN npm ci && npm install -g http-server  
 
-COPY . .
+COPY src/ ./src/
+COPY public/ ./public/
 
 EXPOSE 3000
 

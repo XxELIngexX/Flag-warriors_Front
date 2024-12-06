@@ -4,7 +4,9 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci && npm install -g http-server  
+RUN npm ci --ignore-scripts && npm install -g http-server --ignore-scripts && \
+    groupadd -r nodegroup && useradd -r -g nodegroup nodeuser && \
+    chown -R nodeuser:nodegroup /app
 
 COPY src/ ./src/
 COPY public/ ./public/

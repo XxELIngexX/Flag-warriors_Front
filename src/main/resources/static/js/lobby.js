@@ -1,10 +1,10 @@
 
-export let players = [];
-export let lobbyWs = null; // WebSocket globalmente accesible
-export let currentPlayer = null;
+export const players = [];
+export const lobbyWs = null; // WebSocket globalmente accesible
 
 const lobby = (function () { 
 
+    let currentPlayer = null;
 
 
     return {

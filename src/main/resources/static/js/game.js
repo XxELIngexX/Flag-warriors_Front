@@ -1,9 +1,9 @@
 
-var avatar;
+let avatar;
 
     const gameScene = new game();
 
-    var config = {
+    let config = {
         type: Phaser.AUTO,
         scale: {
             mode: Phaser.Scale.FIT, // escala automáticamente
@@ -20,7 +20,7 @@ var avatar;
         },
         scene: [gameScene]
     }
-    var juego = new Phaser.Game(config);
+    let juego = new Phaser.Game(config);
 
     
 

@@ -224,9 +224,9 @@ class game extends Phaser.Scene {
         });
     }
     createMap() {
-        var map = this.make.tilemap({ key: "mapa" });
-        var tileset = map.addTilesetImage("muros", "textura");
-        var fondo = map.createLayer("pisosDelJuego", tileset);
+        let map = this.make.tilemap({ key: "mapa" });
+        let tileset = map.addTilesetImage("muros", "textura");
+        let fondo = map.createLayer("pisosDelJuego", tileset);
         fondo.setScale(2.25);
         fondo.setCollisionByProperty({ colision: true });
         this.col = fondo;
@@ -279,7 +279,7 @@ class game extends Phaser.Scene {
                             break;
 
                         case 'playerMoved':
-                            var oponentToUpdate = this.oponentes[data.id];
+                            let oponentToUpdate = this.oponentes[data.id];
                             oponentToUpdate.setPosition(data.x, data.y);
                             break;
 
@@ -336,7 +336,7 @@ class game extends Phaser.Scene {
                                     setTimeout(() => {
                                         // Si el equipo A anotó, solo reaparece la bandera azul (bandera1)
                                         if (data.team === "A") {
-                                            // Desactivar cualquier bandera visible primero
+                                            // Desactilet cualquier bandera visible primero
                                             this.bandera1.disableBody(true, true);
                                             this.bandera2.disableBody(true, true);
                                             // Reaparecer solo la bandera azul
@@ -549,7 +549,7 @@ class game extends Phaser.Scene {
                     this.physics.add.overlap(this.avatar, this.poder, (player, poder) => this.collectPower(player, poder), null, this);
                 }
             } else {
-                var oponent = this.physics.add.sprite(player.x, player.y, `opponentPlayer_${player.id}`);
+                let oponent = this.physics.add.sprite(player.x, player.y, `opponentPlayer_${player.id}`);
                 oponent.setScale(1);
                 oponent.setCollideWorldBounds(true);
                 oponent.setSize(30, 80);

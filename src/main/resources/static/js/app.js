@@ -1,13 +1,13 @@
-var app = (function () {
-    var score = 0;
-    var currentPlayer = null;
+let app = (function () {
+    let score = 0;
+    let currentPlayer = null;
 
 
 
     return {
         createPlayer: function () {
-            var nombre = document.getElementById("nombre").value;
-            var player = { name: nombre, score: 0, flag: false};
+            let nombre = document.getElementById("nombre").value;
+            let player = { name: nombre, score: 0, flag: false};
             apiclient.createPlayer(player, function (createdPlayer) {       
                 currentPlayer = createdPlayer;
                 console.log("Jugador creado y guardado:", currentPlayer.name, currentPlayer.id);
@@ -29,11 +29,6 @@ var app = (function () {
 
         },
         
-
-        capturePower: function(id,callback){
-            apiclient.capturePower(id,callback);
-        },
-
 
         capturePower: function(id,callback){
             apiclient.capturePower(id,callback);

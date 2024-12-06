@@ -1,11 +1,11 @@
 
-export var players = [];
-export var lobbyWs = null; // WebSocket globalmente accesible
-export var currentPlayer;
+export let players = [];
+export let lobbyWs = null; // WebSocket globalmente accesible
+export let currentPlayer;
 
-var lobby = (function () { 
-    var currentPlayer = null;
-    var countdownTimer = null;
+let lobby = (function () { 
+    let currentPlayer = null;
+    let countdownTimer = null;
 
 
 

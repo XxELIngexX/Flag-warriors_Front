@@ -1,7 +1,6 @@
 const apiclient = (() => {
 
-    var apiUrl = "https://flagwarriorsbackend-fnhxgjb2beeqb6ct.northeurope-01.azurewebsites.net/api";
-    //var apiUrl = "http://localhost:8080/api";
+    const apiUrl = "https://flagwarriorsbackend-fnhxgjb2beeqb6ct.northeurope-01.azurewebsites.net/api";
 
     return {
 
@@ -86,25 +85,7 @@ const apiclient = (() => {
             });
         },
 
-        // getTeamById: function(id, callback) {
-        //     $.ajax({
-        //         url: `${apiUrl}/teams/${id}`, // URL del endpoint
-        //         method: "GET", // Método HTTP
-        //         headers: {
-        //             "Access-Control-Allow-Origin": "*/*",
-        //             "Origin": "http://localhost:3000"
-        //         },
-        //         success: function (data) { // Callback en caso de éxito
-        //             if (callback) {
-        //                 callback(data);
-        //             }
-        //         },
-        //         error: function (error) { // Manejo de errores
-        //             console.error("Error al obtener equipos:", error);
-        //         }
-        //     });
-        // },
-
+       
         getPlayerById: function (id, callback) {
             $.ajax({
                 url: `${apiUrl}/players/${id}`, // URL del endpoint
